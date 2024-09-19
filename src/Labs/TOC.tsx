@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 export default function TOC() {
   return (
     <div>
-      <h3>Kira Ye SEC 01</h3>
       <a href="https://github.com/Akira-Yip/kanbas-react-web-app/tree/a1">Visit the a1 branch of Kanbas React Web App on GitHub</a>
 
       <ul>
