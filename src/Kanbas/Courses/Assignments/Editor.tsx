@@ -1,6 +1,47 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import Database from "../../Database"; // Import your database
+
+// Define the shape of an assignment object
+interface Assignment {
+    _id: string;
+    title: string;
+    description: string;
+    points: number;
+    group: string;
+    gradeDisplay: string;
+    submissionType: string;
+    dueDate: string;
+    availableFrom: string;
+    availableUntil: string;
+}
 
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams<{ cid: string; aid: string }>(); // Extract route params
+    const [assignment, setAssignment] = useState<Assignment | null>(null); // State to store assignment
+
+    // Fetch the assignment data based on the ID from the URL
+    useEffect(() => {
+        const fetchedAssignment = Database.assignments.find(
+            (a) => a._id === aid && a.course === cid
+        );
+        if (fetchedAssignment) {
+            setAssignment({
+                ...fetchedAssignment,
+                description: fetchedAssignment.description || "",
+                points: fetchedAssignment.points || 100,
+                group: "assignments",
+                gradeDisplay: "percentage",
+                submissionType: "online",
+                dueDate: fetchedAssignment.dueDate || "2024-05-13T23:59",
+                availableFrom: fetchedAssignment.availableFrom || "2024-05-06T00:00",
+                availableUntil: fetchedAssignment.availableUntil || "",
+            });
+        }
+    }, [aid, cid]);
+
+    if (!assignment) return <div>Loading assignment...</div>; // Handle loading state
+
     return (
         <div id="wd-assignments-editor" className="container mt-4 p-4">
             <form>
@@ -10,7 +51,7 @@ export default function AssignmentEditor() {
                     <input
                         id="wd-name"
                         className="form-control"
-                        defaultValue="A1 - ENV + HTML"
+                        defaultValue={assignment.title}
                     />
                 </div>
 
@@ -20,13 +61,7 @@ export default function AssignmentEditor() {
                         id="wd-description"
                         className="form-control"
                         rows={6}
-                        defaultValue="The assignment is available online. Submit a link to the landing page of your Web application running on Netlify. The landing page should include the following:
-                        
-Your full name and section
-Links to each of the lab assignments
-Link to the Kanbas application
-Links to all relevant source code repositories
-The Kanbas application should include a link to navigate back to the landing page."
+                        defaultValue={assignment.description}
                     />
                 </div>
 
@@ -40,7 +75,8 @@ The Kanbas application should include a link to navigate back to the landing pag
                             id="wd-points"
                             type="number"
                             className="form-control"
-                            defaultValue={100}
+                            value={assignment.points}
+                            readOnly
                         />
                     </div>
                 </div>
@@ -127,19 +163,23 @@ The Kanbas application should include a link to navigate back to the landing pag
                             />
 
                             {/* Available From and Until */}
-                            <label className="form-label fw-bold">Available from</label>
-                            <div className="d-flex align-items-center">
-                                <input
-                                    type="datetime-local"
-                                    className="form-control me-2"
-                                    defaultValue="2024-05-06T00:00"
-                                />
-                                <span className="mx-2">Until</span>
-                                <input
-                                    type="datetime-local"
-                                    className="form-control"
-                                    defaultValue=""
-                                />
+                            <div className="row mb-4">
+                                <div className="col-md-6">
+                                    <label className="form-label fw-bold">Available from</label>
+                                    <input
+                                        type="datetime-local"
+                                        className="form-control"
+                                        defaultValue={assignment.availableFrom}
+                                    />
+                                </div>
+                                <div className="col-md-6">
+                                    <label className="form-label fw-bold">Until</label>
+                                    <input
+                                        type="datetime-local"
+                                        className="form-control"
+                                        defaultValue={assignment.availableUntil}
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>

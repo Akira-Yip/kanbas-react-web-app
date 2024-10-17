@@ -1,11 +1,15 @@
 import React from 'react';
-import { BsPlusLg, BsThreeDotsVertical, BsGripVertical, BsSearch } from "react-icons/bs";
-import { FaClipboardList } from "react-icons/fa";
-import AssigmentControlButtons from './AssignmentsControlButton';
-import { FaCaretDown } from "react-icons/fa";
+import { useParams, Link } from 'react-router-dom';
+import { BsPlusLg, BsThreeDotsVertical, BsGripVertical, BsSearch } from 'react-icons/bs';
+import { FaClipboardList, FaCaretDown } from 'react-icons/fa';
+import AssignmentControlButtons from './AssignmentsControlButton';
 import LessonControlButtons from './LessonControlButtons';
+import Database from '../../Database'; // Import your database
 
 export default function Assignments() {
+    const { cid } = useParams(); // Extract course ID from URL
+    const assignments = Database.assignments.filter((assignment) => assignment.course === cid);
+
     return (
         <div id="wd-assignments" className="p-4">
             {/* Search and Add Buttons */}
@@ -42,68 +46,45 @@ export default function Assignments() {
                                 <FaCaretDown />
                                 Assignments
                             </div>
-                            <AssigmentControlButtons />
+                            <AssignmentControlButtons />
                         </div>
                         <ul className="wd-lessons list-group rounded-0">
-                            {/* Assignment Item A1 */}
-                            <li className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-start">
-                                <div className="d-flex flex-column">
-                                    <div className="d-flex align-items-center mb-1">
-                                        <BsGripVertical className="me-3 fs-4 text-muted" />
-                                        <FaClipboardList className="text-success me-2 fs-4" />
-                                        <a className="wd-assignment-link text-dark fw-bold text-decoration-none" href="#/Kanbas/Courses/1234/Assignments/456">
-                                            A1 - ENV + HTML
-                                        </a>
-                                    </div>
-                                    <div className="d-flex text-black small">
-                                        <span style={{ color: '#b71c1c' }}>Multiple Modules</span>
-                                        <span className="ms-3 text-black">| <strong>&nbsp;Not available until</strong> May 6 at 12:00am</span>
-                                        <span className="ms-3 text-black">| <strong>&nbsp;Due</strong> May 13 at 11:59pm</span>
-                                        <span className="ms-3 text-black">| 100 pts</span>
-                                    </div>
-                                </div>
-                                <LessonControlButtons />
-                            </li>
-
-                            {/* Assignment Item A2 */}
-                            <li className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-start">
-                                <div className="d-flex flex-column">
-                                    <div className="d-flex align-items-center mb-1">
-                                        <BsGripVertical className="me-3 fs-4 text-muted" />
-                                        <FaClipboardList className="text-success me-2 fs-4" />
-                                        <a className="wd-assignment-link text-dark fw-bold text-decoration-none" href="#/Kanbas/Courses/1234/Assignments/456">
-                                            A2 - CSS + BOOTSTRAP
-                                        </a>
-                                    </div>
-                                    <div className="d-flex text-black small">
-                                        <span style={{ color: '#b71c1c' }}>Multiple Modules</span>
-                                        <span className="ms-3 text-black">| <strong>Not available until</strong> May 13 at 12:00am</span>
-                                        <span className="ms-3 text-black">| <strong>Due</strong> May 20 at 11:59pm</span>
-                                        <span className="ms-3 text-black">| 100 pts</span>
-                                    </div>
-                                </div>
-                                <LessonControlButtons />
-                            </li>
-
-                            {/* Assignment Item A3 */}
-                            <li className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-start">
-                                <div className="d-flex flex-column">
-                                    <div className="d-flex align-items-center mb-1">
-                                        <BsGripVertical className="me-3 fs-4 text-muted" />
-                                        <FaClipboardList className="text-success me-2 fs-4" />
-                                        <a className="wd-assignment-link text-dark fw-bold text-decoration-none" href="#/Kanbas/Courses/1234/Assignments/789">
-                                            A3 - JAVASCRIPT + REACT
-                                        </a>
-                                    </div>
-                                    <div className="d-flex text-black small">
-                                        <span style={{ color: '#b71c1c' }}>Multiple Modules</span>
-                                        <span className="ms-3 text-black">| <strong>&nbsp;Not available until</strong> May 20 at 12:00am</span>
-                                        <span className="ms-3 text-black">| <strong>&nbsp;Due</strong> May 27 at 11:59pm</span>
-                                        <span className="ms-3 text-black">| 100 pts</span>
-                                    </div>
-                                </div>
-                                <LessonControlButtons />
-                            </li>
+                            {assignments.length > 0 ? (
+                                assignments.map((assignment) => (
+                                    <li
+                                        key={assignment._id}
+                                        className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-start"
+                                    >
+                                        <div className="d-flex flex-column">
+                                            <div className="d-flex align-items-center mb-1">
+                                                <BsGripVertical className="me-3 fs-4 text-muted" />
+                                                <FaClipboardList className="text-success me-2 fs-4" />
+                                                <Link
+                                                    className="wd-assignment-link text-dark fw-bold text-decoration-none"
+                                                    to={`/Kanbas/Courses/${cid}/Assignments/${assignment._id}`}
+                                                >
+                                                    {assignment.title}
+                                                </Link>
+                                            </div>
+                                            <div className="d-flex text-black small">
+                                                <span style={{ color: '#b71c1c' }}>Multiple Modules</span>
+                                                <span className="ms-3 text-black">
+                                                    | <strong>Not available until</strong> {new Date(assignment.availableFrom).toLocaleString()}
+                                                </span>
+                                                <span className="ms-3 text-black">
+                                                    | <strong>Due</strong> {new Date(assignment.dueDate).toLocaleString()}
+                                                </span>
+                                                <span className="ms-3 text-black">| {assignment.points} pts</span>
+                                            </div>
+                                        </div>
+                                        <LessonControlButtons />
+                                    </li>
+                                ))
+                            ) : (
+                                <li className="list-group-item text-center">
+                                    No assignments found for this course.
+                                </li>
+                            )}
                         </ul>
                     </li>
                 </ul>
