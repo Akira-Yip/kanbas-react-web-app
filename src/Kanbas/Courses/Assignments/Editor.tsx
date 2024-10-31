@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import Database from "../../Database"; // Import your database
+import * as db from "../../Database"; // Import your database
 
 // Define the shape of an assignment object
 interface Assignment {
@@ -22,7 +22,7 @@ export default function AssignmentEditor() {
 
     // Fetch the assignment data based on the ID from the URL
     useEffect(() => {
-        const fetchedAssignment = Database.assignments.find(
+        const fetchedAssignment = db.assignments.find(
             (a) => a._id === aid && a.course === cid
         );
         if (fetchedAssignment) {

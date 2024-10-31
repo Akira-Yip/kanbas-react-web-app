@@ -1,10 +1,10 @@
 import { FaUserCircle } from "react-icons/fa";
 import { useParams } from "react-router-dom";
-import Database from "../../Database"; // Default import for the Database
+import * as db from "../../Database"; // Default import for the Database
 
 export default function PeopleTable() {
     const { cid } = useParams(); // Extract course ID from route parameters
-    const { users, enrollments } = Database; // Destructure users and enrollments from Database
+    const { users, enrollments } = db; // Destructure users and enrollments from Database
 
     return (
         <div id="wd-people-table">
