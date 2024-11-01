@@ -12,19 +12,13 @@ import LessonControlButtons from "./LessonControlButtons";
 import * as db from "../../Database"; // Import your database
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { deleteAssignment } from "./reducer";
 
 export default function Assignments() {
-  const dispatch = useDispatch();
-
-  const handleDelete = (assignmentId: string) => {
-    if (window.confirm("Are you sure you want to remove the assignment?")) {
-      dispatch(deleteAssignment(assignmentId));
-    }
-  };
   const { cid } = useParams(); // Extract course ID from URL
-  const assignments = db.assignments.filter(
-    (assignment) => assignment.course === cid
+  const assignments = useSelector((state: any) =>
+    state.assignmentsReducer.filter(
+      (assignment: any) => assignment.course === cid
+    )
   );
 
   return (
@@ -60,6 +54,7 @@ export default function Assignments() {
               color: "#fff",
               borderRadius: "4px",
             }}
+            //add onclick func
           >
             + Assignment
           </button>
@@ -73,14 +68,14 @@ export default function Assignments() {
             <div className="wd-title p-3 ps-2 bg-secondary text-black d-flex justify-content-between align-items-center">
               <div>
                 <BsGripVertical className="me-2 fs-3" />
-                <FaCaretDown />
+                <FaCaretDown className="me-2" />
                 Assignments
               </div>
               <AssignmentControlButtons />
             </div>
             <ul className="wd-lessons list-group rounded-0">
               {assignments.length > 0 ? (
-                assignments.map((assignment) => (
+                assignments.map((assignment: any) => (
                   <li
                     key={assignment._id}
                     className="wd-lesson list-group-item p-3 d-flex justify-content-between align-items-start"
@@ -95,11 +90,6 @@ export default function Assignments() {
                         >
                           {assignment.title}
                         </Link>
-                        {/* <li key={assignment._id}>
-                          <Link to={`${assignment._id}`}>
-                            {assignment.title}
-                          </Link>
-                        </li> */}
                       </div>
                       <div className="d-flex text-black small">
                         <span style={{ color: "#b71c1c" }}>
