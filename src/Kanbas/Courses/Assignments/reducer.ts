@@ -25,10 +25,13 @@ const assignmentsSlice = createSlice({
     deleteAssignment: (state, action) => {
       state.assignments = state.assignments.filter((assignment: any) => assignment._id !== action.payload._id);
     },
+    setAssignments: (state, action) => {
+      state.assignments = action.payload;
+    }
   },
 });
 
-export const { addAssignment, updateAssignment, deleteAssignment } = assignmentsSlice.actions;
+export const { addAssignment, updateAssignment, deleteAssignment, setAssignments } = assignmentsSlice.actions;
 export default assignmentsSlice.reducer;
 
 // src/Kanbas/Courses/Assignments/reducer.ts

@@ -7,12 +7,35 @@ import * as db from "../../Database"; // Import your database
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { addAssignment } from "./reducer";
+import { setAssignments } from "./reducer";
+import { useEffect } from "react";
+import * as assignmentsClient from "./client";
 
 export default function Assignments() {
   const { cid } = useParams(); // Extract course ID from URL
   const { assignments } = useSelector((state: any) => state.assignmentsReducer);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Fetch assignments from database when cid changes
+  useEffect(() => {
+    const loadAssignments = async () => {
+      if (cid) {
+        const data = await assignmentsClient.findAssignmentsForCourse(cid);
+        // Dispatch the assignments into the store
+        dispatch(setAssignments(data));
+      }
+    };
+    loadAssignments();
+  }, [cid, dispatch]);
+  // Handle delete assignment
+  const handleDeleteAssignment = async (assignmentId: string) => {
+    await assignmentsClient.deleteAssignment(assignmentId);
+    // Update the local store to remove the deleted assignment
+    dispatch(
+      setAssignments(assignments.filter((a: any) => a._id !== assignmentId))
+    );
+  };
 
   return (
     <div id="wd-assignments" className="p-4">
@@ -102,6 +125,13 @@ export default function Assignments() {
                       </div>
                     </div>
                     <LessonControlButtons />
+                    {/* Delete button */}
+                    <button
+                      className="btn btn-danger btn-sm ms-2"
+                      onClick={() => handleDeleteAssignment(assignment._id)}
+                    >
+                      Delete
+                    </button>
                   </li>
                 ))
               ) : (
@@ -116,131 +146,3 @@ export default function Assignments() {
     </div>
   );
 }
-
-
-// import React, { useEffect, useState } from "react";
-// import { useParams } from "react-router-dom";
-// import * as assignmentsClient from "./client";
-
-// export default function Assignments() {
-//   const { cid } = useParams();
-//   const [assignments, setAssignments] = useState<any[]>([]);
-//   const [newAssignment, setNewAssignment] = useState<any>({
-//     title: "",
-//     description: "",
-//   });
-
-//   const fetchAssignments = async () => {
-//     const data = await assignmentsClient.findAssignmentsForCourse(cid!);
-//     setAssignments(data);
-//   };
-
-//   const handleCreateAssignment = async () => {
-//     const createdAssignment = await assignmentsClient.createAssignment(
-//       cid!,
-//       newAssignment
-//     );
-//     setAssignments([...assignments, createdAssignment]);
-//     setNewAssignment({ title: "", description: "" });
-//   };
-
-//   const handleUpdateAssignment = async (assignmentId: string, updates: any) => {
-//     await assignmentsClient.updateAssignment(assignmentId, updates);
-//     fetchAssignments();
-//   };
-
-//   const handleDeleteAssignment = async (assignmentId: string) => {
-//     await assignmentsClient.deleteAssignment(assignmentId);
-//     setAssignments(assignments.filter((a) => a._id !== assignmentId));
-//   };
-
-//   useEffect(() => {
-//     fetchAssignments();
-//   }, [cid]);
-
-//   return (
-//     <div>
-//       <h2>Assignments</h2>
-//       <ul>
-//         {assignments.map((assignment) => (
-//           <li key={assignment._id}>
-//             <h3>{assignment.title}</h3>
-//             <p>{assignment.description}</p>
-//             <button onClick={() => handleDeleteAssignment(assignment._id)}>
-//               Delete
-//             </button>
-//             {/* Add edit functionality as needed */}
-//           </li>
-//         ))}
-//       </ul>
-//       <h3>Create New Assignment</h3>
-//       <input
-//         type="text"
-//         placeholder="Title"
-//         value={newAssignment.title}
-//         onChange={(e) =>
-//           setNewAssignment({ ...newAssignment, title: e.target.value })
-//         }
-//       />
-//       <textarea
-//         placeholder="Description"
-//         value={newAssignment.description}
-//         onChange={(e) =>
-//           setNewAssignment({ ...newAssignment, description: e.target.value })
-//         }
-//       />
-//       <button onClick={handleCreateAssignment}>Create Assignment</button>
-//     </div>
-//   );
-// }
-
-// src/Kanbas/Courses/Assignments/index.tsx
-
-// src/Kanbas/Courses/Assignments/index.tsx
-
-// import React, { useEffect } from 'react';
-// import { useParams, Link, Routes, Route } from 'react-router-dom';
-// import { useAppDispatch, useAppSelector } from '../../hooks';
-// import { fetchAssignmentsForCourse } from './reducer';
-// import AssignmentEditor from './AssignmentEditor';
-
-// const Assignments = () => {
-//   const { cid } = useParams();
-//   const dispatch = useAppDispatch();
-//   const assignments = useAppSelector((state) => state.assignmentsReducer);
-
-//   useEffect(() => {
-//     if (cid) {
-//       dispatch(fetchAssignmentsForCourse(cid));
-//     }
-//   }, [cid, dispatch]);
-
-//   return (
-//     <div>
-//       <h2>Assignments</h2>
-//       <Link to="new" className="btn btn-primary mb-3">
-//         Create New Assignment
-//       </Link>
-//       <ul className="list-group">
-//         {assignments.map((assignment: any) => (
-//           <li key={assignment._id} className="list-group-item">
-//             <h5>{assignment.title}</h5>
-//             <p>{assignment.description}</p>
-//             <Link to={`${assignment._id}/edit`} className="btn btn-warning me-2">
-//               Edit
-//             </Link>
-//             {/* Add other buttons like Delete if needed */}
-//           </li>
-//         ))}
-//       </ul>
-
-//       <Routes>
-//         <Route path="new" element={<AssignmentEditor />} />
-//         <Route path=":assignmentId/edit" element={<AssignmentEditor />} />
-//       </Routes>
-//     </div>
-//   );
-// };
-
-// export default Assignments;
-
